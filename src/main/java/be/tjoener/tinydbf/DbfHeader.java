@@ -49,7 +49,7 @@ public final class DbfHeader {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (!(obj instanceof DbfHeader)) return false;
 
         DbfHeader other = (DbfHeader) obj;
         return lastModified.equals(other.lastModified)

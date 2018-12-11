@@ -38,7 +38,7 @@ public final class DbfField {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (!(obj instanceof DbfField)) return false;
 
         DbfField other = (DbfField) obj;
         return name.equals(other.name)
