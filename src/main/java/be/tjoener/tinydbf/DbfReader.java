@@ -95,10 +95,9 @@ public final class DbfReader {
     }
 
     private Object[] readRecord() throws IOException {
-        Object[] result = new Object[header.getFields().size()];
-        List<DbfField> fields = header.getFields();
-        for (int i = 0; i < fields.size(); i++) {
-            DbfField field = fields.get(i);
+        Object[] result = new Object[header.getFieldCount()];
+        for (int i = 0; i < header.getFieldCount(); i++) {
+            DbfField field = header.getField(i);
             result[i] = readValue(field);
         }
         return result;

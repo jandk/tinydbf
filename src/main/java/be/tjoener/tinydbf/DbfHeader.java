@@ -2,8 +2,9 @@ package be.tjoener.tinydbf;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -15,6 +16,7 @@ public final class DbfHeader {
     private final int headerLength;
     private final int recordLength;
     private final List<DbfField> fields;
+    private transient final Map<String, Integer> fieldIndex;
 
     public DbfHeader(LocalDate lastModified, int numberOfRecords, int headerLength, int recordLength, List<DbfField> fields) {
         this.lastModified = requireNonNull(lastModified, "lastModified");
@@ -22,6 +24,7 @@ public final class DbfHeader {
         this.headerLength = headerLength;
         this.recordLength = recordLength;
         this.fields = new ArrayList<>(fields);
+        this.fieldIndex = createFieldIndex(fields);
     }
 
 
@@ -41,8 +44,29 @@ public final class DbfHeader {
         return recordLength;
     }
 
-    public List<DbfField> getFields() {
-        return Collections.unmodifiableList(fields);
+    public int getFieldCount() {
+        return fields.size();
+    }
+
+    public DbfField getField(int index) {
+        return fields.get(index);
+    }
+
+    public int getFieldIndex(String fieldName) {
+        Integer result = fieldIndex.get(fieldName);
+        if (result == null) {
+            throw new IllegalArgumentException("Unknown field: " + fieldName);
+        }
+        return result;
+    }
+
+
+    private Map<String, Integer> createFieldIndex(List<DbfField> fields) {
+        Map<String, Integer> fieldIndex = new HashMap<>();
+        for (int i = 0; i < fields.size(); i++) {
+            fieldIndex.put(fields.get(i).getName(), i);
+        }
+        return fieldIndex;
     }
 
 
