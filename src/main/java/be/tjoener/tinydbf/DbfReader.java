@@ -43,22 +43,11 @@ public final class DbfReader {
         }
     }
 
-    public Object[] nextRow() throws IOException {
-        while (true) {
-            int indicator = read();
-            switch (indicator) {
-                case RECORD_PRESENT:
-                    return readRow();
-                case RECORD_ABSENT:
-                    skip(header.getRecordLength());
-                    break;
-                case FILE_TERMINATOR:
-                    return null;
-                default:
-                    throw new IOException("Unexpected byte: " + indicator);
-            }
-        }
+
+    public DbfHeader getHeader() {
+        return header;
     }
+
 
     private DbfHeader readHeader() throws IOException {
         ByteBuffer buffer = ByteBuffer.wrap(read(HEADER_SIZE))
@@ -94,18 +83,31 @@ public final class DbfReader {
         return new DbfField(name, type, length, decimalCount);
     }
 
-    public DbfRecord readRecord() throws IOException {
-        Object[] row = readRow();
-        return row == null ? null : new DbfRecord(header, row);
+
+    public DbfRecord nextRecord() throws IOException {
+        while (true) {
+            int indicator = read();
+            switch (indicator) {
+                case RECORD_PRESENT:
+                    return readRecord();
+                case RECORD_ABSENT:
+                    skip(header.getRecordLength());
+                    break;
+                case FILE_TERMINATOR:
+                    return null;
+                default:
+                    throw new IOException("Unexpected byte: " + indicator);
+            }
+        }
     }
 
-    public Object[] readRow() throws IOException {
-        Object[] result = new Object[header.getFieldCount()];
+    private DbfRecord readRecord() throws IOException {
+        Object[] record = new Object[header.getFieldCount()];
         for (int i = 0; i < header.getFieldCount(); i++) {
             DbfField field = header.getField(i);
-            result[i] = readValue(field);
+            record[i] = readValue(field);
         }
-        return result;
+        return new DbfRecord(header, record);
     }
 
     private Object readValue(DbfField field) throws IOException {
