@@ -3,7 +3,7 @@ package be.tjoener.tinydbf;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-public class DbfRecord {
+public final class DbfRecord {
     private final DbfHeader header;
     private final Object[] row;
 

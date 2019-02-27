@@ -2,7 +2,7 @@ package be.tjoener.tinydbf;
 
 import static java.util.Objects.requireNonNull;
 
-class StringNumber extends Number {
+final class StringNumber extends Number {
     private final String value;
 
     StringNumber(String value) {
