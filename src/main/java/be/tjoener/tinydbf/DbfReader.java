@@ -48,7 +48,7 @@ public final class DbfReader {
             int indicator = read();
             switch (indicator) {
                 case RECORD_PRESENT:
-                    return readRecord();
+                    return readRow();
                 case RECORD_ABSENT:
                     skip(header.getRecordLength());
                     break;
@@ -94,7 +94,11 @@ public final class DbfReader {
         return new DbfField(name, type, length, decimalCount);
     }
 
-    private Object[] readRecord() throws IOException {
+    public DbfRecord readRecord() throws IOException {
+        return new DbfRecord(header, readRow());
+    }
+
+    private Object[] readRow() throws IOException {
         Object[] result = new Object[header.getFieldCount()];
         for (int i = 0; i < header.getFieldCount(); i++) {
             DbfField field = header.getField(i);
