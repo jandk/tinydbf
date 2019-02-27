@@ -95,7 +95,8 @@ public final class DbfReader {
     }
 
     public DbfRecord readRecord() throws IOException {
-        return new DbfRecord(header, readRow());
+        Object[] row = readRow();
+        return row == null ? null : new DbfRecord(header, row);
     }
 
     public Object[] readRow() throws IOException {
