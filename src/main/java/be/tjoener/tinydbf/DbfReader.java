@@ -98,7 +98,7 @@ public final class DbfReader {
         return new DbfRecord(header, readRow());
     }
 
-    private Object[] readRow() throws IOException {
+    public Object[] readRow() throws IOException {
         Object[] result = new Object[header.getFieldCount()];
         for (int i = 0; i < header.getFieldCount(); i++) {
             DbfField field = header.getField(i);
