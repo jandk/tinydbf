@@ -1,7 +1,7 @@
 package be.tjoener.tinydbf;
 
 public enum DbfType {
-    CHARACTER('C'),
+    CHAR('C'),
     DATE('D'),
     FLOATING('F'),
     LOGICAL('L'),

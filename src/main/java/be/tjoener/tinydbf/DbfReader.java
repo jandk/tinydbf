@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,17 +17,46 @@ public final class DbfReader {
     private static final int FIELD_SIZE = 32;
     private static final int FIELD_TERMINATOR = 0x0d;
 
+    private static final int RECORD_PRESENT = 0x20;
+    private static final int RECORD_ABSENT = 0x2a;
+    private static final int FILE_TERMINATOR = 0x1a;
+
     private final InputStream inputStream;
+    private final Charset charset;
+
     final DbfHeader header;
 
     public DbfReader(InputStream inputStream) {
+        this(inputStream, StandardCharsets.US_ASCII);
+    }
+
+    public DbfReader(InputStream inputStream, Charset charset) {
+        this.charset = charset;
         this.inputStream = inputStream.markSupported()
                 ? inputStream
                 : new BufferedInputStream(inputStream);
+
         try {
             this.header = readHeader();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    public Object[] nextRow() throws IOException {
+        while (true) {
+            int indicator = read();
+            switch (indicator) {
+                case RECORD_PRESENT:
+                    return readRecord();
+                case RECORD_ABSENT:
+                    skip(header.getRecordLength());
+                    break;
+                case FILE_TERMINATOR:
+                    return null;
+                default:
+                    throw new IOException("Unexpected byte: " + indicator);
+            }
         }
     }
 
@@ -49,6 +79,7 @@ public final class DbfReader {
             DbfField field = readField();
             fields.add(field);
         }
+        skip(1);
 
         return new DbfHeader(lastModified, numberOfRecords, headerLength, recordLength, fields);
     }
@@ -63,7 +94,52 @@ public final class DbfReader {
         return new DbfField(name, type, length, decimalCount);
     }
 
+    private Object[] readRecord() throws IOException {
+        Object[] result = new Object[header.getFields().size()];
+        List<DbfField> fields = header.getFields();
+        for (int i = 0; i < fields.size(); i++) {
+            DbfField field = fields.get(i);
+            result[i] = readValue(field);
+        }
+        return result;
+    }
+
+    private Object readValue(DbfField field) throws IOException {
+        byte[] bytes = read(field.getLength());
+        String s = new String(bytes, charset).trim();
+        if (s.isEmpty()) return null;
+
+        switch (field.getType()) {
+            case CHAR:
+                return s;
+            case DATE:
+                return readDateValue(s);
+            case FLOATING:
+            case NUMERIC:
+                return new StringNumber(s);
+            case LOGICAL:
+                return "YyTt".indexOf(s.charAt(0)) >= 0;
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private LocalDate readDateValue(String s) {
+        int year = Integer.parseInt(s.substring(0, 4));
+        int month = Integer.parseInt(s.substring(4, 6));
+        int dayOfMonth = Integer.parseInt(s.substring(6, 8));
+        return LocalDate.of(year, month, dayOfMonth);
+    }
+
     // region Helpers
+
+    private int read() throws IOException {
+        int result = inputStream.read();
+        if (result == -1) {
+            throw new IOException("EOF reached");
+        }
+        return result;
+    }
 
     private byte[] read(int size) throws IOException {
         byte[] bytes = new byte[size];
@@ -71,6 +147,12 @@ public final class DbfReader {
             throw new IOException("Not enough bytes read");
         }
         return bytes;
+    }
+
+    private void skip(int size) throws IOException {
+        if (inputStream.skip(size) != size) {
+            throw new IOException("Not enough bytes skipped");
+        }
     }
 
     private int peek() throws IOException {
