@@ -63,12 +63,7 @@ public final class DbfReader {
         return new DbfField(name, type, length, decimalCount);
     }
 
-    private int peek() throws IOException {
-        inputStream.mark(1);
-        int result = inputStream.read();
-        inputStream.reset();
-        return result;
-    }
+    // region Helpers
 
     private byte[] read(int size) throws IOException {
         byte[] bytes = new byte[size];
@@ -77,5 +72,14 @@ public final class DbfReader {
         }
         return bytes;
     }
+
+    private int peek() throws IOException {
+        inputStream.mark(1);
+        int result = inputStream.read();
+        inputStream.reset();
+        return result;
+    }
+
+    // endregion
 
 }
