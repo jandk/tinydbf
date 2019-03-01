@@ -83,13 +83,17 @@ public final class DbfReader {
         return new DbfField(name, type, length, decimalCount);
     }
 
-
     public DbfRecord nextRecord() throws IOException {
+        Object[] row = nextRow();
+        return row == null ? null : new DbfRecord(header, row);
+    }
+
+    public Object[] nextRow() throws IOException {
         while (true) {
             int indicator = read();
             switch (indicator) {
                 case RECORD_PRESENT:
-                    return readRecord();
+                    return readRow();
                 case RECORD_ABSENT:
                     skip(header.getRecordLength());
                     break;
@@ -101,13 +105,13 @@ public final class DbfReader {
         }
     }
 
-    private DbfRecord readRecord() throws IOException {
+    private Object[] readRow() throws IOException {
         Object[] record = new Object[header.getFieldCount()];
         for (int i = 0; i < header.getFieldCount(); i++) {
             DbfField field = header.getField(i);
             record[i] = readValue(field);
         }
-        return new DbfRecord(header, record);
+        return record;
     }
 
     private Object readValue(DbfField field) throws IOException {
