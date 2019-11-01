@@ -27,7 +27,7 @@ public final class DbfReader {
     private final DbfHeader header;
 
     public DbfReader(InputStream inputStream) {
-        this(inputStream, StandardCharsets.US_ASCII);
+        this(inputStream, StandardCharsets.ISO_8859_1);
     }
 
     public DbfReader(InputStream inputStream, Charset charset) {

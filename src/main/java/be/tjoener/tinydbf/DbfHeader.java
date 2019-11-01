@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 public final class DbfHeader {
 
     private final LocalDate lastModified;
@@ -19,7 +17,7 @@ public final class DbfHeader {
     private transient final Map<String, Integer> fieldIndex;
 
     public DbfHeader(LocalDate lastModified, int numberOfRecords, int headerLength, int recordLength, List<DbfField> fields) {
-        this.lastModified = requireNonNull(lastModified, "lastModified");
+        this.lastModified = Objects.requireNonNull(lastModified, "lastModified");
         this.numberOfRecords = numberOfRecords;
         this.headerLength = headerLength;
         this.recordLength = recordLength;
@@ -90,10 +88,13 @@ public final class DbfHeader {
 
     @Override
     public String toString() {
-        return String.format(
-                "DbfHeader(lastModified=%s, numberOfRecords=%d, headerLength=%d, recordLength=%d, fields=%s)",
-                lastModified, numberOfRecords, headerLength, recordLength, fields
-        );
+        return "DbfHeader(" +
+            "lastModified=" + lastModified + ", " +
+            "numberOfRecords=" + numberOfRecords + ", " +
+            "headerLength=" + headerLength + ", " +
+            "recordLength=" + recordLength + ", " +
+            "fields=" + fields +
+            ")";
     }
 
 }

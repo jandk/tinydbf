@@ -2,8 +2,6 @@ package be.tjoener.tinydbf;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
-
 public final class DbfField {
     private final String name;
     private final DbfType type;
@@ -11,8 +9,8 @@ public final class DbfField {
     private final int decimalCount;
 
     public DbfField(String name, DbfType type, int length, int decimalCount) {
-        this.name = requireNonNull(name, "name");
-        this.type = requireNonNull(type, "type");
+        this.name = Objects.requireNonNull(name, "name");
+        this.type = Objects.requireNonNull(type, "type");
         this.length = length;
         this.decimalCount = decimalCount;
     }
@@ -54,10 +52,12 @@ public final class DbfField {
 
     @Override
     public String toString() {
-        return String.format(
-                "DbfField(name='%s', type=%s, length=%d, decimalCount=%d)",
-                name, type, length, decimalCount
-        );
+        return "DbfField(" +
+            "name='" + name + "', " +
+            "type=" + type + ", " +
+            "length=" + length + ", " +
+            "decimalCount=" + decimalCount +
+            ")";
     }
 
 }

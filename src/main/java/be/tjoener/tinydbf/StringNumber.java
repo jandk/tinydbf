@@ -1,12 +1,12 @@
 package be.tjoener.tinydbf;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 final class StringNumber extends Number {
     private final String value;
 
     StringNumber(String value) {
-        this.value = requireNonNull(value, "value");
+        this.value = Objects.requireNonNull(value, "value");
     }
 
     @Override
