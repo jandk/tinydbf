@@ -1,4 +1,4 @@
-package be.tjoener.tinydbf;
+package be.twofold.tinydbf;
 
 public enum DbfType {
     CHAR('C'),

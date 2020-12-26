@@ -1,4 +1,4 @@
-package be.tjoener.tinydbf.value;
+package be.twofold.tinydbf.value;
 
 final class DbfNull implements DbfValue {
 

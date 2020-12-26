@@ -1,4 +1,4 @@
-package be.tjoener.tinydbf;
+package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
 import org.junit.*;

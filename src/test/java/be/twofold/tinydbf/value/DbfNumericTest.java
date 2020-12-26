@@ -1,19 +1,17 @@
-package be.tjoener.tinydbf.value;
+package be.twofold.tinydbf.value;
 
 import nl.jqno.equalsverifier.*;
 import org.junit.*;
 
-import java.time.*;
-
 import static org.assertj.core.api.Assertions.*;
 
-public class DbfDateTest {
+public class DbfNumericTest {
 
-    private final DbfValue value = new DbfDate(LocalDate.now());
+    private final DbfValue value = new DbfNumeric(0);
 
     @Test
     public void testEqualsAndHashCode() {
-        EqualsVerifier.forClass(DbfDate.class)
+        EqualsVerifier.forClass(DbfNumeric.class)
             .suppress(Warning.NULL_FIELDS)
             .verify();
     }
@@ -22,17 +20,17 @@ public class DbfDateTest {
     public void testIs() {
         assertThat(value.isNull()).isFalse();
         assertThat(value.isCharacter()).isFalse();
-        assertThat(value.isDate()).isTrue();
+        assertThat(value.isDate()).isFalse();
         assertThat(value.isLogical()).isFalse();
-        assertThat(value.isNumeric()).isFalse();
+        assertThat(value.isNumeric()).isTrue();
     }
 
     @Test
     public void testAs() {
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
-        assertThat(value.asDate()).isEqualTo(LocalDate.now());
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asLogical);
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asNumeric);
+        assertThat(value.asNumeric()).isEqualTo(0);
     }
 
 }

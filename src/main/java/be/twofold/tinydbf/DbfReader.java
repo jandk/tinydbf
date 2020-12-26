@@ -1,6 +1,6 @@
-package be.tjoener.tinydbf;
+package be.twofold.tinydbf;
 
-import be.tjoener.tinydbf.value.*;
+import be.twofold.tinydbf.value.*;
 
 import java.io.*;
 import java.nio.*;

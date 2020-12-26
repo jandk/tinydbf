@@ -1,4 +1,4 @@
-package be.tjoener.tinydbf;
+package be.twofold.tinydbf;
 
 import java.time.*;
 import java.util.*;
