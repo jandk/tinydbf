@@ -112,30 +112,89 @@ public final class DbfReader {
 
     private DbfValue readValue(DbfField field) throws IOException {
         byte[] bytes = read(field.getLength());
-        String s = new String(bytes, charset).trim();
-        if (s.isEmpty()) return null;
 
         switch (field.getType()) {
             case CHAR:
-                return DbfValue.character(s);
+                return DbfValue.character(parseCharacter(bytes));
             case DATE:
-                return DbfValue.date(readDateValue(s));
+                return DbfValue.date(parseDate(bytes));
             case FLOATING:
             case NUMERIC:
-                return DbfValue.numeric(new StringNumber(s));
+                return DbfValue.numeric(parseNumber(bytes));
             case LOGICAL:
-                return DbfValue.logical("YyTt".indexOf(s.charAt(0)) >= 0);
+                return DbfValue.logical(parseBoolean(bytes));
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
-    private LocalDate readDateValue(String s) {
-        int year = Integer.parseInt(s.substring(0, 4));
-        int month = Integer.parseInt(s.substring(4, 6));
-        int dayOfMonth = Integer.parseInt(s.substring(6, 8));
+    private String parseCharacter(byte[] bytes) {
+        int index = 0;
+        for (int i = bytes.length - 1; i >= 0; i--) {
+            if (bytes[i] != 0x20) {
+                index = i + 1;
+                break;
+            }
+        }
+
+        return index == 0 ? null
+            : new String(bytes, 0, index, charset);
+    }
+
+    private LocalDate parseDate(byte[] bytes) {
+        for (byte b : bytes) {
+            if (b < '0' || b > '9') {
+                return null;
+            }
+        }
+
+        int year = parseInt(bytes, 0, 4);
+        int month = parseInt(bytes, 4, 6);
+        int dayOfMonth = parseInt(bytes, 6, 8);
         return LocalDate.of(year, month, dayOfMonth);
     }
+
+    private int parseInt(byte[] bytes, int from, int to) {
+        int result = 0;
+        for (int i = from; i < to; i++) {
+            result = result * 10 + (bytes[i] - '0');
+        }
+        return result;
+    }
+
+    private Number parseNumber(byte[] bytes) {
+        int offset = bytes.length;
+        for (int i = 0; i < bytes.length; i++) {
+            if (bytes[i] != 0x20) {
+                offset = i;
+                break;
+            }
+        }
+
+        if (offset == bytes.length) {
+            return null;
+        }
+        int length = bytes.length - offset;
+        return new StringNumber(new String(bytes, offset, length, charset));
+    }
+
+    private Boolean parseBoolean(byte[] bytes) {
+        switch (bytes[0]) {
+            case 'Y':
+            case 'y':
+            case 'T':
+            case 't':
+                return true;
+            case 'N':
+            case 'n':
+            case 'F':
+            case 'f':
+                return false;
+            default:
+                return null;
+        }
+    }
+
 
     // region Helpers
 

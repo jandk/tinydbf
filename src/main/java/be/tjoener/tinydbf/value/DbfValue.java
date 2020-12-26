@@ -7,18 +7,30 @@ public interface DbfValue {
     DbfValue Null = DbfNull.Null;
 
     static DbfValue character(String value) {
+        if (value == null || value.isEmpty()) {
+            return Null;
+        }
         return new DbfCharacter(value);
     }
 
     static DbfValue date(LocalDate value) {
+        if (value == null) {
+            return Null;
+        }
         return new DbfDate(value);
     }
 
-    static DbfValue logical(boolean value) {
+    static DbfValue logical(Boolean value) {
+        if (value == null) {
+            return Null;
+        }
         return DbfLogical.valueOf(value);
     }
 
     static DbfValue numeric(Number value) {
+        if (value == null) {
+            return Null;
+        }
         return new DbfNumeric(value);
     }
 
