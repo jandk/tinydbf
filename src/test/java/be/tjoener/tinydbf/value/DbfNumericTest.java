@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.*;
 
 public class DbfNumericTest {
 
-    private final DbfValue value = new DbfNumeric("0");
+    private final DbfValue value = new DbfNumeric(0);
 
     @Test
     public void testEqualsAndHashCode() {
@@ -30,7 +30,7 @@ public class DbfNumericTest {
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asLogical);
-        assertThat(value.asNumeric()).isEqualTo(new DbfNumeric("0"));
+        assertThat(value.asNumeric()).isEqualTo(0);
     }
 
 }

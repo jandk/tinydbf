@@ -1,49 +1,19 @@
 package be.tjoener.tinydbf.value;
 
-import java.math.*;
 import java.util.*;
 
-final class DbfNumeric extends Number implements DbfValue {
+final class DbfNumeric implements DbfValue {
 
-    private final String value;
+    private final Number value;
 
-    DbfNumeric(String value) {
+    DbfNumeric(Number value) {
         this.value = Objects.requireNonNull(value, "value");
     }
 
 
     @Override
     public Number asNumeric() {
-        return this;
-    }
-
-
-    @Override
-    public int intValue() {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return (int) longValue();
-        }
-    }
-
-    @Override
-    public long longValue() {
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            return new BigInteger(value).longValue();
-        }
-    }
-
-    @Override
-    public float floatValue() {
-        return Float.parseFloat(value);
-    }
-
-    @Override
-    public double doubleValue() {
-        return Double.parseDouble(value);
+        return value;
     }
 
 
@@ -60,7 +30,7 @@ final class DbfNumeric extends Number implements DbfValue {
 
     @Override
     public String toString() {
-        return value;
+        return value.toString();
     }
 
 }

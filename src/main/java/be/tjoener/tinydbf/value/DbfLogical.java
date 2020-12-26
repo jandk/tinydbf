@@ -11,6 +11,10 @@ final class DbfLogical implements DbfValue {
         this.value = value;
     }
 
+    static DbfLogical valueOf(boolean value) {
+        return value ? True : False;
+    }
+
 
     @Override
     public boolean asLogical() {

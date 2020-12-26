@@ -1,8 +1,10 @@
 package be.tjoener.tinydbf;
 
+import java.math.*;
 import java.util.*;
 
 final class StringNumber extends Number {
+
     private final String value;
 
     StringNumber(String value) {
@@ -11,12 +13,20 @@ final class StringNumber extends Number {
 
     @Override
     public int intValue() {
-        return Integer.parseInt(value);
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return (int) longValue();
+        }
     }
 
     @Override
     public long longValue() {
-        return Long.parseLong(value);
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return new BigInteger(value).longValue();
+        }
     }
 
     @Override
@@ -44,4 +54,5 @@ final class StringNumber extends Number {
     public String toString() {
         return value;
     }
+
 }

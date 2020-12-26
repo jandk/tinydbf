@@ -4,6 +4,25 @@ import java.time.*;
 
 public interface DbfValue {
 
+    DbfValue Null = DbfNull.Null;
+
+    static DbfValue character(String value) {
+        return new DbfCharacter(value);
+    }
+
+    static DbfValue date(LocalDate value) {
+        return new DbfDate(value);
+    }
+
+    static DbfValue logical(boolean value) {
+        return DbfLogical.valueOf(value);
+    }
+
+    static DbfValue numeric(Number value) {
+        return new DbfNumeric(value);
+    }
+
+
     default boolean isNull() {
         return this instanceof DbfNull;
     }

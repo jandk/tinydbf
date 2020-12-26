@@ -1,5 +1,7 @@
 package be.tjoener.tinydbf;
 
+import be.tjoener.tinydbf.value.*;
+
 import java.io.*;
 import java.nio.*;
 import java.nio.charset.*;
@@ -82,7 +84,7 @@ public final class DbfReader {
         return row == null ? null : new DbfRecord(header, row);
     }
 
-    public Object[] nextRow() throws IOException {
+    public DbfValue[] nextRow() throws IOException {
         while (true) {
             int indicator = read();
             switch (indicator) {
@@ -99,8 +101,8 @@ public final class DbfReader {
         }
     }
 
-    private Object[] readRow() throws IOException {
-        Object[] record = new Object[header.getFieldCount()];
+    private DbfValue[] readRow() throws IOException {
+        DbfValue[] record = new DbfValue[header.getFieldCount()];
         for (int i = 0; i < header.getFieldCount(); i++) {
             DbfField field = header.getField(i);
             record[i] = readValue(field);
@@ -108,21 +110,21 @@ public final class DbfReader {
         return record;
     }
 
-    private Object readValue(DbfField field) throws IOException {
+    private DbfValue readValue(DbfField field) throws IOException {
         byte[] bytes = read(field.getLength());
         String s = new String(bytes, charset).trim();
         if (s.isEmpty()) return null;
 
         switch (field.getType()) {
             case CHAR:
-                return s;
+                return DbfValue.character(s);
             case DATE:
-                return readDateValue(s);
+                return DbfValue.date(readDateValue(s));
             case FLOATING:
             case NUMERIC:
-                return new StringNumber(s);
+                return DbfValue.numeric(new StringNumber(s));
             case LOGICAL:
-                return "YyTt".indexOf(s.charAt(0)) >= 0;
+                return DbfValue.logical("YyTt".indexOf(s.charAt(0)) >= 0);
             default:
                 throw new UnsupportedOperationException();
         }
