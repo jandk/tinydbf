@@ -8,7 +8,7 @@ public final class DbfField {
     private final int length;
     private final int decimalCount;
 
-    public DbfField(String name, DbfType type, int length, int decimalCount) {
+    DbfField(String name, DbfType type, int length, int decimalCount) {
         this.name = Objects.requireNonNull(name, "name");
         this.type = Objects.requireNonNull(type, "type");
         this.length = length;

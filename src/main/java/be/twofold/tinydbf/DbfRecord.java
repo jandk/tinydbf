@@ -1,68 +1,132 @@
 package be.twofold.tinydbf;
 
+import be.twofold.tinydbf.value.*;
+
 import java.time.*;
 import java.util.*;
 
-public final class DbfRecord {
-    private final DbfHeader header;
-    private final Object[] row;
+public final class DbfRecord implements Iterable<DbfValue> {
 
-    public DbfRecord(DbfHeader header, Object[] row) {
+    private final DbfHeader header;
+    private final List<DbfValue> values;
+
+    DbfRecord(DbfHeader header, List<DbfValue> values) {
         this.header = header;
-        this.row = row;
+        this.values = values;
+    }
+
+    @Override
+    public Iterator<DbfValue> iterator() {
+        return Collections.unmodifiableList(values).iterator();
+    }
+
+
+    public int size() {
+        return values.size();
+    }
+
+    public DbfValue get(int fieldIndex) {
+        return values.get(fieldIndex);
+    }
+
+    public DbfValue get(String fieldName) {
+        int fieldIndex = header.getFieldIndex(fieldName)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid fieldName: '" + fieldName + "'"));
+
+        return values.get(fieldIndex);
+    }
+
+
+    public String getString(int fieldIndex) {
+        return get(fieldIndex).asCharacter();
+    }
+
+    public String getString(int fieldIndex, String defaultValue) {
+        DbfValue value = get(fieldIndex);
+        return value.isNull() ? defaultValue : value.asCharacter();
     }
 
     public String getString(String fieldName) {
-        return (String) get(fieldName);
+        return get(fieldName).asCharacter();
+    }
+
+    public String getString(String fieldName, String defaultValue) {
+        DbfValue value = get(fieldName);
+        return value.isNull() ? defaultValue : value.asCharacter();
+    }
+
+
+    public LocalDate getDate(int fieldIndex) {
+        return get(fieldIndex).asDate();
+    }
+
+    public LocalDate getDate(int fieldIndex, LocalDate defaultValue) {
+        DbfValue value = get(fieldIndex);
+        return value.isNull() ? defaultValue : value.asDate();
     }
 
     public LocalDate getDate(String fieldName) {
-        return (LocalDate) get(fieldName);
+        return get(fieldName).asDate();
+    }
+
+    public LocalDate getDate(String fieldName, LocalDate defaultValue) {
+        DbfValue value = get(fieldName);
+        return value.isNull() ? defaultValue : value.asDate();
+    }
+
+
+    public Number getNumber(int fieldIndex) {
+        return get(fieldIndex).asNumeric();
+    }
+
+    public Number getNumber(int fieldIndex, Number defaultValue) {
+        DbfValue value = get(fieldIndex);
+        return value.isNull() ? defaultValue : value.asNumeric();
     }
 
     public Number getNumber(String fieldName) {
-        return (Number) get(fieldName);
+        return get(fieldName).asNumeric();
     }
 
-    public Boolean getBoolean(String fieldName) {
-        return (Boolean) get(fieldName);
+    public Number getNumber(String fieldName, Number defaultValue) {
+        DbfValue value = get(fieldName);
+        return value.isNull() ? defaultValue : value.asNumeric();
     }
 
-    private Object get(String fieldName) {
-        return row[header.getFieldIndex(fieldName)];
+
+    public boolean getBoolean(int fieldIndex) {
+        return get(fieldIndex).asLogical();
     }
 
-    // region Helpers
-
-    public byte getByte(String fieldName) {
-        return getNumber(fieldName).byteValue();
+    public boolean getBoolean(int fieldIndex, boolean defaultValue) {
+        DbfValue value = get(fieldIndex);
+        return value.isNull() ? defaultValue : value.asLogical();
     }
 
-    public short getShort(String fieldName) {
-        return getNumber(fieldName).shortValue();
+    public boolean getBoolean(String fieldName) {
+        return get(fieldName).asLogical();
     }
 
-    public int getInt(String fieldName) {
-        return getNumber(fieldName).intValue();
+    public boolean getBoolean(String fieldName, boolean defaultValue) {
+        DbfValue value = get(fieldName);
+        return value.isNull() ? defaultValue : value.asLogical();
     }
-
-    public long getLong(String fieldName) {
-        return getNumber(fieldName).longValue();
-    }
-
-    public float getFloat(String fieldName) {
-        return getNumber(fieldName).floatValue();
-    }
-
-    public double getDouble(String fieldName) {
-        return getNumber(fieldName).doubleValue();
-    }
-
-    // endregion
 
 
     @Override
-    public String toString() {
-        return Arrays.toString(row);
+    public boolean equals(Object obj) {
+        return this == obj || obj instanceof DbfRecord
+            && values.equals(((DbfRecord) obj).values);
     }
+
+    @Override
+    public int hashCode() {
+        return values.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return values.toString();
+    }
+
 }

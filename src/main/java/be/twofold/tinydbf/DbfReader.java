@@ -8,7 +8,7 @@ import java.nio.charset.*;
 import java.time.*;
 import java.util.*;
 
-public final class DbfReader {
+public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
     private static final int HEADER_SIZE = 32;
     private static final int FIELD_SIZE = 32;
     private static final int FIELD_TERMINATOR = 0x0d;
@@ -17,26 +17,21 @@ public final class DbfReader {
     private static final int RECORD_ABSENT = 0x2a;
     private static final int FILE_TERMINATOR = 0x1a;
 
-    private final InputStream inputStream;
     private final Charset charset;
-
     private final DbfHeader header;
+    private InputStream inputStream;
 
-    public DbfReader(InputStream inputStream) {
+    public DbfReader(InputStream inputStream) throws IOException {
         this(inputStream, StandardCharsets.ISO_8859_1);
     }
 
-    public DbfReader(InputStream inputStream, Charset charset) {
+    public DbfReader(InputStream inputStream, Charset charset) throws IOException {
         this.charset = charset;
         this.inputStream = inputStream.markSupported()
             ? inputStream
             : new BufferedInputStream(inputStream);
 
-        try {
-            this.header = readHeader();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        this.header = readHeader();
     }
 
 
@@ -44,6 +39,7 @@ public final class DbfReader {
         return header;
     }
 
+    // region Reading header
 
     private DbfHeader readHeader() throws IOException {
         ByteBuffer buffer = ByteBuffer.wrap(read(HEADER_SIZE))
@@ -69,7 +65,7 @@ public final class DbfReader {
         return new DbfHeader(lastModified, numberOfRecords, headerLength, recordLength, fields);
     }
 
-    private DbfField readField() throws IOException {
+    private DbfField readField() {
         ByteBuffer buffer = ByteBuffer.wrap(read(FIELD_SIZE));
         String name = new String(buffer.array(), 0, 11, StandardCharsets.US_ASCII).trim();
         DbfType type = DbfType.valueOf((char) buffer.get(11));
@@ -79,38 +75,51 @@ public final class DbfReader {
         return new DbfField(name, type, length, decimalCount);
     }
 
-    public DbfRecord nextRecord() throws IOException {
-        DbfValue[] row = nextRow();
-        return row == null ? null : new DbfRecord(header, row);
-    }
+    // endregion
 
-    public DbfValue[] nextRow() throws IOException {
-        while (true) {
-            int indicator = read();
-            switch (indicator) {
-                case RECORD_PRESENT:
-                    return readRow();
-                case RECORD_ABSENT:
-                    skip(header.getRecordLength());
-                    break;
-                case FILE_TERMINATOR:
-                    return null;
-                default:
-                    throw new IOException("Unexpected byte: " + indicator);
+
+    @Override
+    public boolean hasNext() {
+        try {
+            while (true) {
+                switch (peek()) {
+                    case RECORD_PRESENT:
+                        return true;
+                    case RECORD_ABSENT:
+                        skip(header.getRecordLength() + 1);
+                        break;
+                    case FILE_TERMINATOR:
+                        return false;
+                    default:
+                        throw new IOException("Unexpected byte: " + peek());
+                }
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private DbfValue[] readRow() throws IOException {
-        DbfValue[] record = new DbfValue[header.getFieldCount()];
-        for (int i = 0; i < header.getFieldCount(); i++) {
-            DbfField field = header.getField(i);
-            record[i] = readValue(field);
+    @Override
+    public DbfRecord next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException("No more rows available");
+        }
+        return new DbfRecord(header, readRow());
+    }
+
+    private List<DbfValue> readRow() {
+        skip(1);
+        List<DbfValue> record = new ArrayList<>(header.getFieldCount());
+        for (DbfField field : header) {
+            record.add(readValue(field));
         }
         return record;
     }
 
-    private DbfValue readValue(DbfField field) throws IOException {
+
+    // region Reading values
+
+    private DbfValue readValue(DbfField field) {
         byte[] bytes = read(field.getLength());
 
         switch (field.getType()) {
@@ -195,8 +204,9 @@ public final class DbfReader {
         }
     }
 
+    // endregion
 
-    // region Helpers
+    // region InputStream Helpers
 
     private int read() throws IOException {
         int result = inputStream.read();
@@ -206,17 +216,25 @@ public final class DbfReader {
         return result;
     }
 
-    private byte[] read(int size) throws IOException {
-        byte[] bytes = new byte[size];
-        if (inputStream.read(bytes) != size) {
-            throw new IOException("Not enough bytes read");
+    private byte[] read(int size) {
+        try {
+            byte[] bytes = new byte[size];
+            if (inputStream.read(bytes) != size) {
+                throw new IOException("Not enough bytes read");
+            }
+            return bytes;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return bytes;
     }
 
-    private void skip(int size) throws IOException {
-        if (inputStream.skip(size) != size) {
-            throw new IOException("Not enough bytes skipped");
+    private void skip(int size) {
+        try {
+            if (inputStream.skip(size) != size) {
+                throw new IOException("Not enough bytes skipped");
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -225,6 +243,17 @@ public final class DbfReader {
         int result = inputStream.read();
         inputStream.reset();
         return result;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (inputStream == null)
+            return;
+        try {
+            inputStream.close();
+        } finally {
+            inputStream = null;
+        }
     }
 
     // endregion

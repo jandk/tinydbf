@@ -3,7 +3,7 @@ package be.twofold.tinydbf;
 import java.time.*;
 import java.util.*;
 
-public final class DbfHeader {
+public final class DbfHeader implements Iterable<DbfField> {
 
     private final LocalDate lastModified;
     private final int numberOfRecords;
@@ -19,6 +19,11 @@ public final class DbfHeader {
         this.recordLength = recordLength;
         this.fields = new ArrayList<>(fields);
         this.fieldIndex = createFieldIndex(fields);
+    }
+
+    @Override
+    public Iterator<DbfField> iterator() {
+        return Collections.unmodifiableList(fields).iterator();
     }
 
 
@@ -46,12 +51,9 @@ public final class DbfHeader {
         return fields.get(index);
     }
 
-    public int getFieldIndex(String fieldName) {
-        Integer result = fieldIndex.get(fieldName);
-        if (result == null) {
-            throw new IllegalArgumentException("Unknown field: " + fieldName);
-        }
-        return result;
+    public OptionalInt getFieldIndex(String fieldName) {
+        Integer index = fieldIndex.get(fieldName);
+        return index == null ? OptionalInt.empty() : OptionalInt.of(index);
     }
 
 
