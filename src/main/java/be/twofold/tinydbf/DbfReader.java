@@ -80,7 +80,7 @@ public final class DbfReader {
     }
 
     public DbfRecord nextRecord() throws IOException {
-        Object[] row = nextRow();
+        DbfValue[] row = nextRow();
         return row == null ? null : new DbfRecord(header, row);
     }
 
@@ -175,7 +175,7 @@ public final class DbfReader {
             return null;
         }
         int length = bytes.length - offset;
-        return new StringNumber(new String(bytes, offset, length, charset));
+        return new StringNumber(new String(bytes, offset, length, StandardCharsets.US_ASCII));
     }
 
     private Boolean parseBoolean(byte[] bytes) {
