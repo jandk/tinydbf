@@ -1,6 +1,6 @@
 package be.tjoener.tinydbf;
 
-import java.util.Objects;
+import java.util.*;
 
 public final class DbfField {
     private final String name;
@@ -40,9 +40,9 @@ public final class DbfField {
 
         DbfField other = (DbfField) obj;
         return name.equals(other.name)
-                && type == other.type
-                && length == other.length
-                && decimalCount == other.decimalCount;
+            && type == other.type
+            && length == other.length
+            && decimalCount == other.decimalCount;
     }
 
     @Override

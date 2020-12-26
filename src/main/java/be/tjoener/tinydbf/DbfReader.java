@@ -1,16 +1,10 @@
 package be.tjoener.tinydbf;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.*;
+import java.nio.charset.*;
+import java.time.*;
+import java.util.*;
 
 public final class DbfReader {
     private static final int HEADER_SIZE = 32;
@@ -33,8 +27,8 @@ public final class DbfReader {
     public DbfReader(InputStream inputStream, Charset charset) {
         this.charset = charset;
         this.inputStream = inputStream.markSupported()
-                ? inputStream
-                : new BufferedInputStream(inputStream);
+            ? inputStream
+            : new BufferedInputStream(inputStream);
 
         try {
             this.header = readHeader();
@@ -51,7 +45,7 @@ public final class DbfReader {
 
     private DbfHeader readHeader() throws IOException {
         ByteBuffer buffer = ByteBuffer.wrap(read(HEADER_SIZE))
-                .order(ByteOrder.LITTLE_ENDIAN);
+            .order(ByteOrder.LITTLE_ENDIAN);
 
         buffer.get(); // Skip
         int year = Byte.toUnsignedInt(buffer.get());

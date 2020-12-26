@@ -1,6 +1,6 @@
 package be.tjoener.tinydbf;
 
-import java.util.Objects;
+import java.util.*;
 
 final class StringNumber extends Number {
     private final String value;
@@ -32,7 +32,7 @@ final class StringNumber extends Number {
     @Override
     public boolean equals(Object obj) {
         return this == obj || obj instanceof StringNumber
-                && value.equals(((StringNumber) obj).value);
+            && value.equals(((StringNumber) obj).value);
     }
 
     @Override

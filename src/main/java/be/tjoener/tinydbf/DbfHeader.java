@@ -1,11 +1,7 @@
 package be.tjoener.tinydbf;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.*;
+import java.util.*;
 
 public final class DbfHeader {
 
@@ -75,10 +71,10 @@ public final class DbfHeader {
 
         DbfHeader other = (DbfHeader) obj;
         return lastModified.equals(other.lastModified)
-                && numberOfRecords == other.numberOfRecords
-                && headerLength == other.headerLength
-                && recordLength == other.recordLength
-                && fields.equals(other.fields);
+            && numberOfRecords == other.numberOfRecords
+            && headerLength == other.headerLength
+            && recordLength == other.recordLength
+            && fields.equals(other.fields);
     }
 
     @Override

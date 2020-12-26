@@ -1,7 +1,7 @@
 package be.tjoener.tinydbf;
 
-import java.time.LocalDate;
-import java.util.Arrays;
+import java.time.*;
+import java.util.*;
 
 public final class DbfRecord {
     private final DbfHeader header;
