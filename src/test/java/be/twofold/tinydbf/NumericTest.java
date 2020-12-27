@@ -1,17 +1,17 @@
-package be.twofold.tinydbf.value;
+package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class DbfNumericTest {
+public class NumericTest {
 
-    private final DbfValue value = new DbfNumeric(0);
+    private final DbfValue value = new DbfValue.Numeric(0);
 
     @Test
     public void testEqualsAndHashCode() {
-        EqualsVerifier.forClass(DbfNumeric.class)
+        EqualsVerifier.forClass(DbfValue.Numeric.class)
             .suppress(Warning.NULL_FIELDS)
             .verify();
     }

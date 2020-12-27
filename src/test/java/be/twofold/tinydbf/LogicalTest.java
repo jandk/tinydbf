@@ -1,17 +1,17 @@
-package be.twofold.tinydbf.value;
+package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class DbfLogicalTest {
+public class LogicalTest {
 
-    private final DbfValue value = DbfLogical.False;
+    private final DbfValue value = DbfValue.Logical.False;
 
     @Test
     public void testEqualsAndHashCode() {
-        EqualsVerifier.forClass(DbfLogical.class)
+        EqualsVerifier.forClass(DbfValue.Logical.class)
             .verify();
     }
 

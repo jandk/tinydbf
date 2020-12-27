@@ -1,7 +1,5 @@
 package be.twofold.tinydbf;
 
-import be.twofold.tinydbf.value.*;
-
 import java.io.*;
 import java.nio.*;
 import java.nio.charset.*;
