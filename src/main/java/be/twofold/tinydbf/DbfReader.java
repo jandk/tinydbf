@@ -9,23 +9,23 @@ import java.time.*;
 import java.util.*;
 
 public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
-    private static final int HEADER_SIZE = 32;
-    private static final int FIELD_SIZE = 32;
-    private static final int FIELD_TERMINATOR = 0x0d;
+    private static final int HeaderSize = 32;
+    private static final int FieldSize = 32;
+    private static final int FieldTerminator = 0x0d;
 
-    private static final int RECORD_PRESENT = 0x20;
-    private static final int RECORD_ABSENT = 0x2a;
-    private static final int FILE_TERMINATOR = 0x1a;
+    private static final int RecordActive = 0x20;
+    private static final int RecordDeleted = 0x2a;
+    private static final int EndOfFile = 0x1a;
 
     private final Charset charset;
     private final DbfHeader header;
     private InputStream inputStream;
 
-    public DbfReader(InputStream inputStream) throws IOException {
+    public DbfReader(InputStream inputStream) {
         this(inputStream, StandardCharsets.ISO_8859_1);
     }
 
-    public DbfReader(InputStream inputStream, Charset charset) throws IOException {
+    public DbfReader(InputStream inputStream, Charset charset) {
         this.charset = charset;
         this.inputStream = inputStream.markSupported()
             ? inputStream
@@ -41,8 +41,8 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
 
     // region Reading header
 
-    private DbfHeader readHeader() throws IOException {
-        ByteBuffer buffer = ByteBuffer.wrap(read(HEADER_SIZE))
+    private DbfHeader readHeader() {
+        ByteBuffer buffer = ByteBuffer.wrap(read(HeaderSize))
             .order(ByteOrder.LITTLE_ENDIAN);
 
         buffer.get(); // Skip
@@ -56,7 +56,7 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
         int recordLength = buffer.getShort();
 
         List<DbfField> fields = new ArrayList<>();
-        while (peek() != FIELD_TERMINATOR) {
+        while (peek() != FieldTerminator) {
             DbfField field = readField();
             fields.add(field);
         }
@@ -66,13 +66,25 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
     }
 
     private DbfField readField() {
-        ByteBuffer buffer = ByteBuffer.wrap(read(FIELD_SIZE));
-        String name = new String(buffer.array(), 0, 11, StandardCharsets.US_ASCII).trim();
-        DbfType type = DbfType.valueOf((char) buffer.get(11));
-        int length = Byte.toUnsignedInt(buffer.get(16));
-        int decimalCount = Byte.toUnsignedInt(buffer.get(17));
+        byte[] rawField = read(FieldSize);
+        String name = parseFieldName(rawField);
+        DbfType type = DbfType.valueOf((char) rawField[11]);
+        int length = Byte.toUnsignedInt(rawField[16]);
+        int decimalCount = Byte.toUnsignedInt(rawField[17]);
 
         return new DbfField(name, type, length, decimalCount);
+    }
+
+    private String parseFieldName(byte[] bytes) {
+        int index = 0;
+        for (int i = 10; i >= 0; i--) {
+            if (bytes[i] != 0x00) {
+                index = i + 1;
+                break;
+            }
+        }
+
+        return new String(bytes, 0, index, StandardCharsets.US_ASCII);
     }
 
     // endregion
@@ -80,22 +92,18 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
 
     @Override
     public boolean hasNext() {
-        try {
-            while (true) {
-                switch (peek()) {
-                    case RECORD_PRESENT:
-                        return true;
-                    case RECORD_ABSENT:
-                        skip(header.getRecordLength() + 1);
-                        break;
-                    case FILE_TERMINATOR:
-                        return false;
-                    default:
-                        throw new IOException("Unexpected byte: " + peek());
-                }
+        while (true) {
+            switch (peek()) {
+                case RecordActive:
+                    return true;
+                case RecordDeleted:
+                    skip(header.getRecordLength() + 1);
+                    break;
+                case EndOfFile:
+                    return false;
+                default:
+                    throw new DbfException("Unexpected byte: " + peek());
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
@@ -132,9 +140,8 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
                 return DbfValue.numeric(parseNumber(bytes));
             case LOGICAL:
                 return DbfValue.logical(parseBoolean(bytes));
-            default:
-                throw new UnsupportedOperationException();
         }
+        throw new UnsupportedOperationException();
     }
 
     private String parseCharacter(byte[] bytes) {
@@ -208,19 +215,11 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
 
     // region InputStream Helpers
 
-    private int read() throws IOException {
-        int result = inputStream.read();
-        if (result == -1) {
-            throw new IOException("EOF reached");
-        }
-        return result;
-    }
-
     private byte[] read(int size) {
         try {
             byte[] bytes = new byte[size];
             if (inputStream.read(bytes) != size) {
-                throw new IOException("Not enough bytes read");
+                throw new DbfException("Not enough bytes left");
             }
             return bytes;
         } catch (IOException e) {
@@ -231,18 +230,22 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
     private void skip(int size) {
         try {
             if (inputStream.skip(size) != size) {
-                throw new IOException("Not enough bytes skipped");
+                throw new DbfException("Not enough bytes left");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private int peek() throws IOException {
-        inputStream.mark(1);
-        int result = inputStream.read();
-        inputStream.reset();
-        return result;
+    private int peek() {
+        try {
+            inputStream.mark(1);
+            int result = inputStream.read();
+            inputStream.reset();
+            return result;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
