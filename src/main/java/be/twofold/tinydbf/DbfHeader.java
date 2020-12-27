@@ -86,13 +86,18 @@ public final class DbfHeader implements Iterable<DbfField> {
 
     @Override
     public String toString() {
-        return "DbfHeader(" +
-            "lastModified=" + lastModified + ", " +
-            "numberOfRecords=" + numberOfRecords + ", " +
-            "headerLength=" + headerLength + ", " +
-            "recordLength=" + recordLength + ", " +
-            "fields=" + fields +
-            ")";
+        StringBuilder builder = new StringBuilder()
+            .append("DbfHeader(lastModified=").append(lastModified)
+            .append(", numberOfRecords=").append(numberOfRecords)
+            .append(", headerLength=").append(headerLength)
+            .append(", recordLength=").append(recordLength)
+            .append(", fields=[");
+
+        for (DbfField field : fields) {
+            builder.append("\n\t").append(field);
+        }
+
+        return builder.append("\n])").toString();
     }
 
 }
