@@ -5,23 +5,24 @@ import org.junit.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class NullTest {
+public class DbfValueNumericTest {
 
-    private final DbfValue value = DbfValue.Null.Instance;
+    private final DbfValue value = new DbfValueNumeric(0);
 
     @Test
     public void testEqualsAndHashCode() {
-        EqualsVerifier.forClass(DbfValue.Null.class)
+        EqualsVerifier.forClass(DbfValueNumeric.class)
+            .suppress(Warning.NULL_FIELDS)
             .verify();
     }
 
     @Test
     public void testIs() {
-        assertThat(value.isNull()).isTrue();
+        assertThat(value.isNull()).isFalse();
         assertThat(value.isCharacter()).isFalse();
         assertThat(value.isDate()).isFalse();
         assertThat(value.isLogical()).isFalse();
-        assertThat(value.isNumeric()).isFalse();
+        assertThat(value.isNumeric()).isTrue();
     }
 
     @Test
@@ -29,7 +30,7 @@ public class NullTest {
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asLogical);
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asNumeric);
+        assertThat(value.asNumeric()).isEqualTo(0);
     }
 
 }

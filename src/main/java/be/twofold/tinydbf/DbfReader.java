@@ -130,19 +130,19 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
 
         switch (field.getType()) {
             case CHAR:
-                return DbfValue.character(parseCharacter(bytes));
+                return parseCharacter(bytes);
             case DATE:
-                return DbfValue.date(parseDate(bytes));
+                return parseDate(bytes);
             case FLOATING:
             case NUMERIC:
-                return DbfValue.numeric(parseNumber(bytes));
+                return parseNumber(bytes);
             case LOGICAL:
-                return DbfValue.logical(parseBoolean(bytes));
+                return parseBoolean(bytes);
         }
         throw new UnsupportedOperationException();
     }
 
-    private String parseCharacter(byte[] bytes) {
+    private DbfValue parseCharacter(byte[] bytes) {
         int index = 0;
         for (int i = bytes.length - 1; i >= 0; i--) {
             if (bytes[i] != 0x20) {
@@ -151,21 +151,27 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
             }
         }
 
-        return index == 0 ? null
-            : new String(bytes, 0, index, charset);
+        if (index == 0) {
+            return DbfValueNull.Instance;
+        }
+
+        String value = new String(bytes, 0, index, charset);
+        return new DbfValueChar(value);
     }
 
-    private LocalDate parseDate(byte[] bytes) {
+    private DbfValue parseDate(byte[] bytes) {
         for (byte b : bytes) {
             if (b < '0' || b > '9') {
-                return null;
+                return DbfValueNull.Instance;
             }
         }
 
         int year = parseInt(bytes, 0, 4);
         int month = parseInt(bytes, 4, 6);
         int dayOfMonth = parseInt(bytes, 6, 8);
-        return LocalDate.of(year, month, dayOfMonth);
+
+        LocalDate value = LocalDate.of(year, month, dayOfMonth);
+        return new DbfValueDate(value);
     }
 
     private int parseInt(byte[] bytes, int from, int to) {
@@ -176,7 +182,7 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
         return result;
     }
 
-    private Number parseNumber(byte[] bytes) {
+    private DbfValue parseNumber(byte[] bytes) {
         int offset = bytes.length;
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] != 0x20) {
@@ -186,26 +192,27 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
         }
 
         if (offset == bytes.length) {
-            return null;
+            return DbfValueNull.Instance;
         }
         int length = bytes.length - offset;
-        return new StringNumber(new String(bytes, offset, length, StandardCharsets.US_ASCII));
+        String value = new String(bytes, offset, length, StandardCharsets.US_ASCII);
+        return new DbfValueNumeric(new StringNumber(value));
     }
 
-    private Boolean parseBoolean(byte[] bytes) {
+    private DbfValue parseBoolean(byte[] bytes) {
         switch (bytes[0]) {
             case 'Y':
             case 'y':
             case 'T':
             case 't':
-                return true;
+                return DbfValueLogical.True;
             case 'N':
             case 'n':
             case 'F':
             case 'f':
-                return false;
+                return DbfValueLogical.False;
             default:
-                return null;
+                return DbfValueNull.Instance;
         }
     }
 

@@ -5,13 +5,13 @@ import org.junit.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class NumericTest {
+public class DbfValueCharTest {
 
-    private final DbfValue value = new DbfValue.Numeric(0);
+    private final DbfValue value = new DbfValueChar("");
 
     @Test
     public void testEqualsAndHashCode() {
-        EqualsVerifier.forClass(DbfValue.Numeric.class)
+        EqualsVerifier.forClass(DbfValueChar.class)
             .suppress(Warning.NULL_FIELDS)
             .verify();
     }
@@ -19,18 +19,18 @@ public class NumericTest {
     @Test
     public void testIs() {
         assertThat(value.isNull()).isFalse();
-        assertThat(value.isCharacter()).isFalse();
+        assertThat(value.isCharacter()).isTrue();
         assertThat(value.isDate()).isFalse();
         assertThat(value.isLogical()).isFalse();
-        assertThat(value.isNumeric()).isTrue();
+        assertThat(value.isNumeric()).isFalse();
     }
 
     @Test
     public void testAs() {
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
+        assertThat(value.asCharacter()).isEqualTo("");
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asLogical);
-        assertThat(value.asNumeric()).isEqualTo(0);
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asNumeric);
     }
 
 }

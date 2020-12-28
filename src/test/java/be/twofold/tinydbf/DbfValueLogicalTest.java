@@ -5,31 +5,30 @@ import org.junit.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class CharTest {
+public class DbfValueLogicalTest {
 
-    private final DbfValue value = new DbfValue.Char("");
+    private final DbfValue value = DbfValueLogical.False;
 
     @Test
     public void testEqualsAndHashCode() {
-        EqualsVerifier.forClass(DbfValue.Char.class)
-            .suppress(Warning.NULL_FIELDS)
+        EqualsVerifier.forClass(DbfValueLogical.class)
             .verify();
     }
 
     @Test
     public void testIs() {
         assertThat(value.isNull()).isFalse();
-        assertThat(value.isCharacter()).isTrue();
+        assertThat(value.isCharacter()).isFalse();
         assertThat(value.isDate()).isFalse();
-        assertThat(value.isLogical()).isFalse();
+        assertThat(value.isLogical()).isTrue();
         assertThat(value.isNumeric()).isFalse();
     }
 
     @Test
     public void testAs() {
-        assertThat(value.asCharacter()).isEqualTo("");
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asLogical);
+        assertThat(value.asLogical()).isFalse();
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asNumeric);
     }
 
