@@ -1,11 +1,11 @@
 package be.twofold.tinydbf;
 
 public enum DbfType {
-    CHAR('C'),
-    DATE('D'),
-    FLOATING('F'),
-    LOGICAL('L'),
-    NUMERIC('N');
+    Char('C'),
+    Date('D'),
+    Floating('F'),
+    Logical('L'),
+    Numeric('N');
 
     private final char code;
 

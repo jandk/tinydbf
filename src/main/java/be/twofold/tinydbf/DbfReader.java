@@ -129,14 +129,14 @@ public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
         byte[] bytes = read(field.getLength());
 
         switch (field.getType()) {
-            case CHAR:
+            case Char:
                 return parseCharacter(bytes);
-            case DATE:
+            case Date:
                 return parseDate(bytes);
-            case FLOATING:
-            case NUMERIC:
+            case Floating:
+            case Numeric:
                 return parseNumber(bytes);
-            case LOGICAL:
+            case Logical:
                 return parseBoolean(bytes);
         }
         throw new UnsupportedOperationException();
