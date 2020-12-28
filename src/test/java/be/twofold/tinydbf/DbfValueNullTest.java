@@ -1,7 +1,7 @@
 package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -9,7 +9,7 @@ public class DbfValueNullTest {
 
     private final DbfValue value = DbfValueNull.Instance;
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void testEqualsAndHashCode() {
         EqualsVerifier.forClass(DbfValueNull.class)
             .verify();
@@ -24,7 +24,7 @@ public class DbfValueNullTest {
         assertThat(value.isNumeric()).isFalse();
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void testAs() {
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);

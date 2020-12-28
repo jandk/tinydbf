@@ -1,7 +1,7 @@
 package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 public class DbfFieldTest {
 

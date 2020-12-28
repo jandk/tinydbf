@@ -1,7 +1,7 @@
 package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import java.time.*;
 
@@ -18,7 +18,7 @@ public class DbfValueDateTest {
             .verify();
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void testIs() {
         assertThat(value.isNull()).isFalse();
         assertThat(value.isCharacter()).isFalse();
@@ -27,7 +27,7 @@ public class DbfValueDateTest {
         assertThat(value.isNumeric()).isFalse();
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void testAs() {
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
         assertThat(value.asDate()).isEqualTo(LocalDate.now());

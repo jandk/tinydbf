@@ -1,7 +1,7 @@
 package be.twofold.tinydbf;
 
 import nl.jqno.equalsverifier.*;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -15,7 +15,7 @@ public class DbfValueLogicalTest {
             .verify();
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void testIs() {
         assertThat(value.isNull()).isFalse();
         assertThat(value.isCharacter()).isFalse();
@@ -24,7 +24,7 @@ public class DbfValueLogicalTest {
         assertThat(value.isNumeric()).isFalse();
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void testAs() {
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asCharacter);
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(value::asDate);
