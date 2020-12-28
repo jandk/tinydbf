@@ -5,6 +5,9 @@ import java.util.*;
 
 public abstract class DbfValue {
 
+    DbfValue() {
+    }
+
     static DbfValue character(String value) {
         if (value == null || value.isEmpty()) {
             return Null.Instance;
