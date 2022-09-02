@@ -1,7 +1,9 @@
 package be.twofold.tinydbf;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public final class DbfRecord implements Iterable<DbfValue> {
 

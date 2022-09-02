@@ -1,7 +1,7 @@
 package be.twofold.tinydbf;
 
-import java.math.*;
-import java.util.*;
+import java.math.BigInteger;
+import java.util.Objects;
 
 final class StringNumber extends Number {
 

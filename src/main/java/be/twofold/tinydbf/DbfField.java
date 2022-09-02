@@ -1,6 +1,6 @@
 package be.twofold.tinydbf;
 
-import java.util.*;
+import java.util.Objects;
 
 public final class DbfField {
     private final String name;

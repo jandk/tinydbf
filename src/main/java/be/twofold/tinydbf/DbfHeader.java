@@ -1,7 +1,14 @@
 package be.twofold.tinydbf;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.OptionalInt;
 
 public final class DbfHeader implements Iterable<DbfField> {
 

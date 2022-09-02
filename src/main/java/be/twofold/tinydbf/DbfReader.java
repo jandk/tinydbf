@@ -1,10 +1,18 @@
 package be.twofold.tinydbf;
 
-import java.io.*;
-import java.nio.*;
-import java.nio.charset.*;
-import java.time.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public final class DbfReader implements Iterator<DbfRecord>, AutoCloseable {
     private static final int HeaderSize = 32;

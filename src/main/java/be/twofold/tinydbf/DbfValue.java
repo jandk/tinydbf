@@ -1,6 +1,6 @@
 package be.twofold.tinydbf;
 
-import java.time.*;
+import java.time.LocalDate;
 
 public abstract class DbfValue {
 

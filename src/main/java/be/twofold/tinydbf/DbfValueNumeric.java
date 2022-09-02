@@ -1,6 +1,6 @@
 package be.twofold.tinydbf;
 
-import java.util.*;
+import java.util.Objects;
 
 final class DbfValueNumeric extends DbfValue {
 
