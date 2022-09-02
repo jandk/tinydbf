@@ -1,8 +1,6 @@
 package be.twofold.tinydbf;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,13 +22,13 @@ public final class DbfHeader implements Iterable<DbfField> {
         this.numberOfRecords = numberOfRecords;
         this.headerLength = headerLength;
         this.recordLength = recordLength;
-        this.fields = new ArrayList<>(fields);
+        this.fields = List.copyOf(fields);
         this.fieldIndex = createFieldIndex(fields);
     }
 
     @Override
     public Iterator<DbfField> iterator() {
-        return Collections.unmodifiableList(fields).iterator();
+        return fields.iterator();
     }
 
 

@@ -1,9 +1,9 @@
 package be.twofold.tinydbf;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public final class DbfRecord implements Iterable<DbfValue> {
 
@@ -11,13 +11,13 @@ public final class DbfRecord implements Iterable<DbfValue> {
     private final List<DbfValue> values;
 
     DbfRecord(DbfHeader header, List<DbfValue> values) {
-        this.header = header;
-        this.values = values;
+        this.header = Objects.requireNonNull(header, "header");
+        this.values = List.copyOf(values);
     }
 
     @Override
     public Iterator<DbfValue> iterator() {
-        return Collections.unmodifiableList(values).iterator();
+        return values.iterator();
     }
 
 
